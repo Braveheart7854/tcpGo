@@ -5,8 +5,8 @@
 package api
 
 import (
-	"tcpGo/srv/common"
-	"tcpGo/srv/util/msg"
+	"tcpGo/common"
+	"tcpGo/util/msg"
 )
 
 func Connect(message msg.Request) msg.ReturnJson {

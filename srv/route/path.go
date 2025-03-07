@@ -6,7 +6,7 @@ package route
 
 import (
 	. "tcpGo/srv/api"
-	"tcpGo/srv/util/msg"
+	"tcpGo/util/msg"
 )
 
 var PathUrl = make(map[string]HandlerFunc)

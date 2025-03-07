@@ -1,0 +1,6 @@
+.idea/
+.vscode/
+**/bin/linux_amd64/
+**/logs/
+**/temp/
+go.sum

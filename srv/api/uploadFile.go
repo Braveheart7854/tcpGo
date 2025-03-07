@@ -11,9 +11,9 @@ import (
 	"log"
 	"os"
 	"sync"
-	"tcpGo/srv/common"
-	log2 "tcpGo/srv/util/log"
-	"tcpGo/srv/util/msg"
+	"tcpGo/common"
+	log2 "tcpGo/util/log"
+	"tcpGo/util/msg"
 	"time"
 )
 

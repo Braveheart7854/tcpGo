@@ -8,8 +8,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"tcpGo/srv/common"
-	"tcpGo/srv/util/msg"
+	"tcpGo/common"
+	"tcpGo/util/msg"
 	"time"
 )
 
