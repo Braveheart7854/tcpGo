@@ -12,6 +12,7 @@ type Request struct {
 
 type Response struct {
 	ConnNo     string     `json:"conn_no"`
+	Method     string     `json:"method"`
 	ReturnJson ReturnJson `json:"return_json"`
 }
 

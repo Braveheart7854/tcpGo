@@ -217,6 +217,7 @@ func (s *Server) Execute(params Request, responseChan chan Response) {
 
 		finish <- Response{
 			ConnNo:     params.ConnNo,
+			Method:     params.Method,
 			ReturnJson: returnJson,
 		}
 	}()
@@ -225,6 +226,7 @@ func (s *Server) Execute(params Request, responseChan chan Response) {
 	case <-ctx.Done():
 		responseChan <- Response{
 			ConnNo:     params.ConnNo,
+			Method:     params.Method,
 			ReturnJson: ReturnJson{Code: TimeOut, Msg: "服务忙，请稍候"},
 		}
 	case data := <-finish:
@@ -233,6 +235,7 @@ func (s *Server) Execute(params Request, responseChan chan Response) {
 		Log(p)
 		responseChan <- Response{
 			ConnNo:     params.ConnNo,
+			Method:     params.Method,
 			ReturnJson: ReturnJson{Code: ServerErr, Msg: "服务端异常"},
 		}
 	}
