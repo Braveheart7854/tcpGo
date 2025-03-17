@@ -18,6 +18,8 @@ func Connect(message msg.Request) msg.ReturnJson {
 }
 
 func Ping(message msg.Request) msg.ReturnJson {
+	common.Log(string(message.Data))
+
 	return msg.ReturnJson{
 		Code: common.OK,
 		Msg:  "pong",

@@ -12,13 +12,14 @@ import (
 )
 
 type Connect struct {
-	ConnNo    string
-	Uid       string
-	Conn      net.Conn
-	Options   OptionsConnect
-	ReadChan  chan msg.Request
-	WriteChan chan msg.Response
-	TimeTick  *time.Ticker
+	ConnNo        string
+	Uid           string
+	Conn          net.Conn
+	Options       OptionsConnect
+	ReadChan      chan msg.Request
+	WriteChan     chan msg.Response
+	TimeTick      *time.Ticker
+	HeartBeatChan chan struct{}
 }
 
 type OptionsConnect struct {
@@ -32,11 +33,12 @@ func NewConnect(conn net.Conn, options OptionsConnect) *Connect {
 	//conn.SetWriteDeadline(time.Now().Add(options.WriteTimeOut))
 
 	return &Connect{
-		ConnNo:    common.MD5(conn.RemoteAddr().String() + "_" + common.GetRandomString(10)),
-		Conn:      conn,
-		Options:   options,
-		ReadChan:  make(chan msg.Request),
-		WriteChan: make(chan msg.Response),
-		TimeTick:  time.NewTicker(options.HeartTimeOut),
+		ConnNo:        common.MD5(conn.RemoteAddr().String() + "_" + common.GetRandomString(10)),
+		Conn:          conn,
+		Options:       options,
+		ReadChan:      make(chan msg.Request),
+		WriteChan:     make(chan msg.Response),
+		TimeTick:      time.NewTicker(options.HeartTimeOut),
+		HeartBeatChan: make(chan struct{}),
 	}
 }

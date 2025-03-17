@@ -5,14 +5,11 @@
 package msg
 
 type Request struct {
-	ConnNo string `json:"conn_no"`
 	Method string `json:"method"`
 	Data   []byte `json:"data"`
 }
 
 type Response struct {
-	ConnNo     string     `json:"conn_no"`
-	Method     string     `json:"method"`
 	ReturnJson ReturnJson `json:"return_json"`
 }
 

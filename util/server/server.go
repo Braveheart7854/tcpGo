@@ -11,20 +11,23 @@ import (
 	"sync"
 	. "tcpGo/common"
 	"tcpGo/srv/route"
+	"tcpGo/util/lib"
 	. "tcpGo/util/msg"
 	"time"
 )
 
 type Server struct {
-	Conns       map[string]*Connect
-	MaxConn     int
+	//Conns       map[string]*Connect
+	Conns       *lib.CounterSyncMap
+	MaxConn     int64
 	M           *sync.Mutex
 	ConnTimeOut time.Duration
 }
 
 func NewServer() *Server {
 	return &Server{
-		Conns:       make(map[string]*Connect),
+		//Conns:       make(map[string]*Connect),
+		Conns:       new(lib.CounterSyncMap),
 		MaxConn:     10000,
 		M:           new(sync.Mutex),
 		ConnTimeOut: 10 * time.Second,
@@ -48,10 +51,11 @@ func (s *Server) HandleConnection(conn net.Conn) {
 func (s *Server) Connections(c *Connect) error {
 	s.M.Lock()
 	defer s.M.Unlock()
-	if len(s.Conns) >= s.MaxConn {
+	if s.Conns.Len() >= s.MaxConn {
 		return errors.New("Too many connections!")
 	}
-	s.Conns[c.ConnNo] = c
+	//s.Conns[c.ConnNo] = c
+	s.Conns.Store(c.ConnNo, c)
 	return nil
 }
 
@@ -183,6 +187,8 @@ func (s *Server) Handler(c *Connect) {
 
 			go s.Execute(params, c.WriteChan)
 
+		case <-c.HeartBeatChan:
+			return
 		}
 	}
 }
@@ -216,8 +222,6 @@ func (s *Server) Execute(params Request, responseChan chan Response) {
 		}
 
 		finish <- Response{
-			ConnNo:     params.ConnNo,
-			Method:     params.Method,
 			ReturnJson: returnJson,
 		}
 	}()
@@ -225,8 +229,6 @@ func (s *Server) Execute(params Request, responseChan chan Response) {
 	select {
 	case <-ctx.Done():
 		responseChan <- Response{
-			ConnNo:     params.ConnNo,
-			Method:     params.Method,
 			ReturnJson: ReturnJson{Code: TimeOut, Msg: "服务忙，请稍候"},
 		}
 	case data := <-finish:
@@ -234,8 +236,6 @@ func (s *Server) Execute(params Request, responseChan chan Response) {
 	case p := <-panicChan:
 		Log(p)
 		responseChan <- Response{
-			ConnNo:     params.ConnNo,
-			Method:     params.Method,
 			ReturnJson: ReturnJson{Code: ServerErr, Msg: "服务端异常"},
 		}
 	}

@@ -30,7 +30,8 @@ func main() {
 	// 调试用
 	go func() {
 		for range time.Tick(10 * time.Second) {
-			common.Log(fmt.Sprintf("当前连接数为:%d，当前连接列表为：%v", len(srv.Conns), srv.Conns))
+			//common.Log(fmt.Sprintf("当前连接数为:%d，当前连接列表为：%v", len(srv.Conns), srv.Conns))
+			common.Log(fmt.Sprintf("当前连接数为:%d", srv.Conns.Len()))
 		}
 	}()
 

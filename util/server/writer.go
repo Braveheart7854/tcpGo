@@ -19,7 +19,6 @@ func (s *Server) Writer(c *Connect) {
 	for {
 		select {
 		case data := <-c.WriteChan:
-			data.ConnNo = c.ConnNo
 			content, _ := json.Marshal(data)
 
 			_, err := s.WriteData(c, content)
@@ -27,7 +26,9 @@ func (s *Server) Writer(c *Connect) {
 				common.Log(err)
 				continue
 			}
-			//common.Log(n, data.ConnNo, data.ReturnJson)
+		//common.Log(n, data.ConnNo, data.ReturnJson)
+		case <-c.HeartBeatChan:
+			return
 		}
 	}
 }

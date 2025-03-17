@@ -8,7 +8,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"os"
 	"strings"
@@ -58,11 +57,16 @@ func (s *Server) HeartBeatNew(c *Connect) {
 	}()
 	for range c.TimeTick.C {
 		c.TimeTick.Stop()
+		close(c.HeartBeatChan)
+		close(c.ReadChan)
+		close(c.WriteChan)
 		err := c.Conn.Close()
 		if err != nil {
 			common.Log(err)
 		}
-		delete(s.Conns, c.ConnNo)
+		//delete(s.Conns, c.ConnNo)
+		s.Conns.Delete(c.ConnNo)
+		common.Log("心跳超时，断开连接", c.Conn.RemoteAddr().String())
 		return
 	}
 }
@@ -79,7 +83,7 @@ func (s *Server) ReadData(c *Connect) (req msg.Request, err error) {
 		return
 	}
 	dataLen := protocol.BytesToInt64(dataLenByte)
-	fmt.Println("dataLen=", dataLen)
+	//fmt.Println("dataLen=", dataLen)
 
 	data := make([]byte, dataLen)
 	var readLen int64 = 0
@@ -104,7 +108,6 @@ func (s *Server) ReadData(c *Connect) (req msg.Request, err error) {
 
 func (s *Server) SendRetry(c *Connect) {
 	c.ReadChan <- msg.Request{
-		ConnNo: c.ConnNo,
 		Method: "retry",
 		Data:   []byte("read i/o timeout"),
 	}
