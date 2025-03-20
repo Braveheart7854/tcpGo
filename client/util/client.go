@@ -18,11 +18,12 @@ import (
 
 type Client interface {
 	Close() error
-	Auth(data []byte)
+	Auth(data []byte) error
 	Ping() error
 	GetReader()
 	SendHeartbeat(done chan struct{})
-	Send(data []byte) error
+	Send(data msg.Request) error
+	Hello(data []byte) error
 }
 
 func NewClient(host string, port int) (cl Client, err error) {
@@ -86,6 +87,8 @@ func (c *client) GetReader() {
 		}
 
 		fmt.Println(string(data.ReturnJson.Data))
+		//处理数据
+		//...
 	}
 }
 
@@ -128,18 +131,27 @@ func (c *client) WriteData(msgByte []byte) (n int, err error) {
 	return
 }
 
-func (c *client) Auth(data []byte) {
+func (c *client) Send(data msg.Request) error {
+	msgByte, errJson := json.Marshal(data)
+	if errJson != nil {
+		common.Log(errJson)
+		return errJson
+	}
+	_, errWrite := c.WriteData(msgByte)
+	if errWrite != nil {
+		//fmt.Println(n1, "Write failed:", errWrite)
+		common.Log(fmt.Sprintf("Write failed: %v", errWrite))
+		return errWrite
+	}
+	return nil
+}
+
+func (c *client) Auth(data []byte) error {
 	message := msg.Request{
 		Method: "connect",
 		Data:   data,
 	}
-	msgByte, _ := json.Marshal(message)
-
-	n1, err1 := c.WriteData(msgByte)
-	if err1 != nil {
-		fmt.Println(n1, "Write failed:", err1)
-		return
-	}
+	return c.Send(message)
 }
 
 func (c *client) Ping() error {
@@ -147,21 +159,13 @@ func (c *client) Ping() error {
 		Method: "ping",
 		Data:   []byte("心跳包 ping"),
 	}
-	msgByte, _ := json.Marshal(message)
-
-	n1, err1 := c.WriteData(msgByte)
-	if err1 != nil {
-		fmt.Println(n1, "Write failed:", err1)
-		return err1
-	}
-	return nil
+	return c.Send(message)
 }
 
-func (c *client) Send(data []byte) error {
-	n1, err1 := c.WriteData(data)
-	if err1 != nil {
-		fmt.Println(n1, "Write failed:", err1)
-		return err1
+func (c *client) Hello(data []byte) error {
+	message := msg.Request{
+		Method: "hello",
+		Data:   data,
 	}
-	return nil
+	return c.Send(message)
 }

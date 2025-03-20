@@ -5,10 +5,8 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"tcpGo/client/util"
-	"tcpGo/util/msg"
 	"time"
 )
 
@@ -33,12 +31,7 @@ func main() {
 	}
 
 	for i := 0; i < 100; i++ {
-		data := msg.Request{
-			Method: "hello",
-			Data:   []byte(fmt.Sprintf("hello %d", i)),
-		}
-		databyte, _ := json.Marshal(data)
-		cs[i].Send(databyte)
+		_ = cs[i].Hello([]byte(fmt.Sprintf("hello world %d", i)))
 	}
 
 	time.Sleep(10 * time.Second)
